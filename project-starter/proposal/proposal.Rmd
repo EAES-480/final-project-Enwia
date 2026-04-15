@@ -1,16 +1,120 @@
 ---
-title: "Project proposal"
-author: "Team name"
+title: "Enwia Project proposal"
+author: "Dylan Enwia"
 output: html_document
 ---
 
 ```{r load-packages, message = FALSE}
 library(tidyverse)
 library(broom)
+library(readr)
+library(skimr)
 ```
 
 ## 1. Data
+```{r read-data and glimpse-data, message = FALSE}
+Titanite <- read.csv("Ttn.csv")
+
+glimpse(Titanite)
+```
+Response Variables (Y): Temperature_C, Eu_Anomaly, Ce_Anomaly
+Predictor (X): Age_Ma
+
+Sample_ID: Identifier for each titanite sample analysis point.
+
+Age_Ma: The age of titanite crystallization measured in millions of years (Ma) using U–Pb geochronology.
+
+Temperature_C: Temperature from Zr in titanite thermometer (°C)
+
+Eu_Anomaly: Europium anomaly is a ratio that measures the Eu anomaly relative to neighboring rare earth elements. Used as an indicator of: plagioclase fractionation, magma evolution, and redox conditions. Values >1 or <1 indicate enrichment or depletion of Eu.
+
+Ce_Anomaly: Cerium anomaly a ratio that measures the Ce anomaly relative to other rare earth elements. Commonly used as a proxy for: oxidation state (redox conditions) and magma fertility in porphyry systems.
+
+```{r group-data, message = FALSE}
+unique(Titanite$Sample_ID)
+```
+
+
+```{r factor-filter-group-data, message = FALSE}
+Titanite$Sample_ID <- factor(
+  Titanite$Sample_ID,
+  levels = c("25CU01", "25SV1-1", "25CV02", "25LC2", "25LV1")
+)
+
+Titanite <- Titanite %>%
+  filter(!is.na(Sample_ID))
+```
+
 
 ## 2. Exploratory Visualization
+```{r Age-Temperature, message = FALSE}
+ggplot(Titanite, aes(x = Age_Ma, y = Temperature_C, color = Sample_ID)) +
+  geom_point(size = 3) +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_minimal() + 
+  labs(
+    x = "Titanite U-Pb Age (Ma)",
+    y = "Zr-in-Titanite Temperature (°C)",
+    color = "Sample ID"
+  )
+```
+
+```{r Age vs Eu anomaly, message = FALSE}
+ggplot(Titanite, aes(x = Age_Ma, y = Eu_Anomaly, color = Sample_ID)) +
+  geom_point(size = 3) +
+  theme_minimal() +
+  labs(
+    x = "Titanite U-Pb Age (Ma)",
+    y = "Eu/Eu*",
+    color = "Sample ID"
+  )
+```
+
+```{r Age vs Ce anomaly, message = FALSE}
+ggplot(Titanite, aes(x = Age_Ma, y = Ce_Anomaly, color = Sample_ID)) +
+  geom_point(size = 3) +
+  theme_minimal() +
+  labs(
+    x = "Titanite U-Pb Age (Ma)",
+    y = "Ce Anomaly",
+    color = "Sample ID"
+  )
+```
+
+```{r Boxplot-Temperatures, message = FALSE}
+ggplot(Titanite, aes(x = Sample_ID, y = Temperature_C, fill = Sample_ID)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(
+    x = "Sample ID",
+    y = "Zr-in-Titanite Temperature (°C)",
+    fill = "Sample ID"
+  )
+```
+```{r mean-stats, message = FALSE}
+Titanite %>%
+  summarize(
+    mean_age = mean(Age_Ma),
+    mean_temp = mean(Temperature_C),
+    mean_Eu = mean(Eu_Anomaly),
+    mean_Ce = mean(Ce_Anomaly)
+  )
+```
+
+```{r Linear-Regression, message = FALSE}
+model1 <- lm(Temperature_C~ Age_Ma, data = Titanite)
+model2 <- lm(Eu_Anomaly ~ Age_Ma, data = Titanite)
+model3 <- lm(Ce_Anomaly ~ Age_Ma, data = Titanite)
+
+summary(model1)
+summary(model2)
+summary(model3)
+```
+
 
 ## 3. Possible question and method
+Question 1: Is titanite U–Pb age related to Zr-in-titanite temperature? Tests whether thermal conditions change through time.
+
+Question 2: Is titanite U–Pb age related to the Eu Anomaly & Ce Anomaly? Tests whether fractionation processes and oxidation state vary with age.
+
+Methods: I will use the figures above plus linear regression models. I made some scatter plots above of titanite U–Pb age versus each variable (Zr-in-titanite temperature, Eu anomaly, and Ce anomaly) to visually assess trends and relationships in the data. Next, I'm going to use linear regression models to quantify the relationships between age and each predictor variable. I'm planning to evaulate R^2 and p-value.
