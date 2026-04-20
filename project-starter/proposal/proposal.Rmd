@@ -11,24 +11,57 @@ library(readr)
 library(skimr)
 ```
 
+
+> GM GRADE: 15.5/20 - good work, let's resolve the meaning of these individual rows/data points before decidig on final analyses.
+
+> Description: 7.5/8
+> Content: 7/10
+> Quality: 1/2
+
 ## 1. Data
+
+This project investigates whether Titanite U-Pb ages are related to thermal and geochemical conditions recorded in titanite from intrusive rock samples associated with porphyry copper deposit systems from the state of Sonora, Mexico. 
+
+> GM: -0.25 I don't quite understand what the overall question is. Do you mean that thermal and geochemical conditions can introduce an error on the U-PB age? It's not clear to me why the age would otherwise be dependent on geochemical conditions. Make sure this is explained clearly in your downstream work.
+
+Titanite is a useful accessory mineral because it can preserve both trace element compositions and geo-chronological information, making it an effective tool for understanding magmatic processes. The dataset used in this study consists of titanite analyses from several rock samples. 
+
+Each observation represents a single titanite analysis, with associated measurements of U–Pb age (Ma), Zr-in-titanite temperature (°C), Eu anomaly (Eu/Eu*), and Ce anomaly. Zr-in-titanite temperature provides an estimate of the thermal conditions during titanite crystallization. 
+
+> GM: -0.25 is each individual titanite analysis from the same or different samples? you might want to provide more information about where the rock samples came from within the deposit system.
+
+The Eu anomaly reflects plagioclase fractionation and magma evolution, while the Ce anomaly is commonly used as a proxy for oxidation state. 
+
+By comparing these variables to titanite U–Pb ages, this project aims to determine whether magmatic conditions and geochemical signatures vary through time.
+
+> GM: Good description overall. I think this last sentence clarifies what I was asking before, but the first paragarph is still a bit confusing as-is.
+
 ```{r read-data and glimpse-data, message = FALSE}
-Titanite <- read.csv("Ttn.csv")
+Titanite <- read.csv("../data/Ttn.csv")
 
 glimpse(Titanite)
 ```
-Response Variables (Y): Temperature_C, Eu_Anomaly, Ce_Anomaly
-Predictor (X): Age_Ma
+Data Dictionary:
 
-Sample_ID: Identifier for each titanite sample analysis point.
+`Sample_ID`: Identifier for each titanite sample analysis point.
 
-Age_Ma: The age of titanite crystallization measured in millions of years (Ma) using U–Pb geochronology.
+`Age_Ma`: The age of titanite crystallization measured in millions of years (Ma) using U–Pb geochronology.
 
-Temperature_C: Temperature from Zr in titanite thermometer (°C)
+`Temperature_C`: Temperature from Zr in titanite thermometer (°C)
 
-Eu_Anomaly: Europium anomaly is a ratio that measures the Eu anomaly relative to neighboring rare earth elements. Used as an indicator of: plagioclase fractionation, magma evolution, and redox conditions. Values >1 or <1 indicate enrichment or depletion of Eu.
+`Eu_Anomaly`: Europium anomaly is a ratio that measures the Eu anomaly relative to neighboring rare earth elements. Used as an indicator of: plagioclase fractionation, magma evolution, and redox conditions. Values >1 or <1 indicate enrichment or depletion of Eu.
 
-Ce_Anomaly: Cerium anomaly a ratio that measures the Ce anomaly relative to other rare earth elements. Commonly used as a proxy for: oxidation state (redox conditions) and magma fertility in porphyry systems.
+`Ce_Anomaly`: Cerium anomaly a ratio that measures the Ce anomaly relative to other rare earth elements. Commonly used as a proxy for: oxidation state (redox conditions) and magma fertility in porphyry systems.
+
+Response Variables (Y):  
+
+  * Temperature_C
+  * Eu_Anomaly
+  * Ce_Anomaly
+
+Predictor (X):  
+
+  * Age_Ma
 
 ```{r group-data, message = FALSE}
 unique(Titanite$Sample_ID)
@@ -47,6 +80,11 @@ Titanite <- Titanite %>%
 
 
 ## 2. Exploratory Visualization
+
+> GM: Good job, these are nice clean figures overall. You might want to set the age values to negative using `-Age_ma` in ggplot so that the chronology runs from left to right. 
+
+> GM: -3 I'm a bit confused about what each data point is. For each sample_ID, you have many analysis observations. Are these essentially "analytical replicates" from which you should estimate a mean for the sample_id, or is each point a meaningfully distinct subsample of the sample_id?  I'm deducting three points here because the lack of clarity about the meaning of each row makes it hard for me to tell if the subsequent questions are strong. Let's discuss and make a clear plan.
+
 ```{r Age-Temperature, message = FALSE}
 ggplot(Titanite, aes(x = Age_Ma, y = Temperature_C, color = Sample_ID)) +
   geom_point(size = 3) +
@@ -118,3 +156,7 @@ Question 1: Is titanite U–Pb age related to Zr-in-titanite temperature? Tests 
 Question 2: Is titanite U–Pb age related to the Eu Anomaly & Ce Anomaly? Tests whether fractionation processes and oxidation state vary with age.
 
 Methods: I will use the figures above plus linear regression models. I made some scatter plots above of titanite U–Pb age versus each variable (Zr-in-titanite temperature, Eu anomaly, and Ce anomaly) to visually assess trends and relationships in the data. Next, I'm going to use linear regression models to quantify the relationships between age and each predictor variable. I'm planning to evaulate R^2 and p-value.
+
+> GM: This is good, though I'd like to see some use of uncertainty, t-tests, or hypothesis testing in some other form.
+
+> GM: -1 from Quality section: Overall the quality of presentation is good. Though your figures are of good quality, but there are quite a lot of them with limited interpretation. I also had to move your dataset into the data folder from a different project and move your intro text from the data README into this Rmd. 
