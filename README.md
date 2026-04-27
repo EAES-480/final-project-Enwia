@@ -1,6 +1,8 @@
 
 # Final Project Overview
 
+## April 27: Example presentation from 380: https://github.com/EAES-380/final-project-biogeo-biochem.git
+
 Choose a dataset and:  
 
   * apply data science to explore and wrangle
